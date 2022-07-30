@@ -1,3 +1,4 @@
+use crate::helpers;
 use colored::Colorize;
 use handlebars::{handlebars_helper, Handlebars};
 use heck::ToTitleCase;
@@ -64,6 +65,8 @@ impl TransformList {
             handlebars_inner.register_helper("uppercase", Box::new(uppercase));
             handlebars_inner.register_helper("lowercase", Box::new(lowercase));
             handlebars_inner.register_helper("titlecase", Box::new(titlecase));
+            #[cfg(feature = "exif")]
+            handlebars_inner.register_helper("exif", Box::new(helpers::exif::ExifHelper));
             handlebars_inner
         };
 
@@ -123,14 +126,23 @@ fn collect_files(root_dir: &Path, regex_filter: &Regex) -> Vec<String> {
         .collect()
 }
 
-fn transform_name(src: &str, r: &Regex, handlebars: &Handlebars, number: usize) -> String {
-    let mut context: HashMap<String, Value> = HashMap::new();
-
+fn capture_to_context(
+    src: &str,
+    r: &Regex,
+    mut context: HashMap<String, Value>,
+) -> HashMap<String, Value> {
     for cap in r.captures_iter(src) {
         for sub in cap.iter().enumerate() {
             context.insert(format!("_{}", sub.0), sub.1.unwrap().as_str().into());
         }
     }
+    context
+}
+
+fn transform_name(src: &str, r: &Regex, handlebars: &Handlebars, number: usize) -> String {
+    let mut context: HashMap<String, Value> = HashMap::new();
+
+    context = capture_to_context(src, r, context);
 
     context.insert("__self".into(), src.into());
     context.insert("__n".into(), number.into());
@@ -141,4 +153,20 @@ fn transform_name(src: &str, r: &Regex, handlebars: &Handlebars, number: usize) 
     debug!("Rendered: {rendered:?}");
 
     rendered
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde_json::{json, Value};
+    use std::collections::HashMap;
+
+    #[test]
+    fn test_capture_to_context() {
+        let context = capture_to_context("abc", &Regex::new("(.+)").unwrap(), HashMap::new());
+        assert_eq!(json!(context), json!({"_0": "abc", "_1": "abc"}));
+
+        let context = capture_to_context("abc", &Regex::new("^d$").unwrap(), HashMap::new());
+        assert_eq!(json!(context), json!({}));
+    }
 }
