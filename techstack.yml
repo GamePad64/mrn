@@ -1,7 +1,8 @@
 repo_name: GamePad64/mrn
 report_id: 21cc0a9c524cdd4cd773a0057bd9e776
+version: 0.1
 repo_type: Public
-timestamp: '2023-11-09T15:20:41+00:00'
+timestamp: '2024-01-04T14:58:46+00:00'
 requested_by: GamePad64
 provider: github
 branch: master
@@ -15,6 +16,7 @@ tools:
   category: Languages & Frameworks
   sub_category: Languages
   image_url: https://img.stackshare.io/service/1070/v7txhrjp9pdqrkdtxxp0.png
+  detection_source_url: https://github.com/GamePad64/mrn
   detection_source: Repo Metadata
 - name: Git
   description: Fast, scalable, distributed revision control system
@@ -24,4 +26,5 @@ tools:
   category: Build, Test, Deploy
   sub_category: Version Control System
   image_url: https://img.stackshare.io/service/1046/git.png
+  detection_source_url: https://github.com/GamePad64/mrn
   detection_source: Repo Metadata
